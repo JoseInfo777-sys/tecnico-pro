@@ -21,7 +21,7 @@ class CustomerResource extends Resource
     protected static ?string $modelLabel = 'Cliente';      // Nombre en singular (botón "Crear Cliente")
     protected static ?string $pluralModelLabel = 'Clientes'; // Nombre en plural
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-users';
 
     public static function form(Form $form): Form
     {

@@ -16,4 +16,10 @@ class EditCustomer extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
+
+    //VOLVER A INDEX DESPUES DE ACTUALIZAR
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }

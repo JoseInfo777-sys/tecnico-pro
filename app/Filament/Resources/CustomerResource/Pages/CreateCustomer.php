@@ -9,4 +9,10 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateCustomer extends CreateRecord
 {
     protected static string $resource = CustomerResource::class;
+
+    //VOLVER A INDEX DESPUES DE GUARDAR
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }

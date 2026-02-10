@@ -23,7 +23,7 @@ class RepairOrderResource extends Resource
     protected static ?string $modelLabel = 'Orden de Reparación';
     protected static ?string $pluralModelLabel = 'Órdenes de Reparación';
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
 
     public static function form(Form $form): Form
     {
@@ -63,8 +63,8 @@ class RepairOrderResource extends Resource
                 ->required(),
             Forms\Components\Select::make('status')
                 ->options([
-                    'Pendiente' => 'Pendiente',
-                    'En Reparación' => 'En Reparación',
+                    //'Pendiente' => 'Pendiente',
+                    'En Reparacion' => 'En Reparación',
                     'Listo' => 'Listo para entrega',
                     'Entregado' => 'Entregado',
                 ])->default('Pendiente'),
@@ -79,6 +79,13 @@ class RepairOrderResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+        ->recordClasses(fn (RepairOrder $record) => match ($record->status) {
+            'En Reparacion' => 'bg-red-100/80 dark:bg-red-900/40',
+            'Listo'          => 'bg-orange-100/80 dark:bg-orange-900/40',
+            'Entregado'      => 'bg-green-100/80 dark:bg-green-900/40',
+            default          => null,
+        })
+
         ->columns([
             // Esta es la columna de numeración (Ítem)
             Tables\Columns\TextColumn::make('index')
@@ -105,29 +112,22 @@ class RepairOrderResource extends Resource
                 ->limit(30),
 
             // El Estado con insignias de colores (Badges)
-            Tables\Columns\SelectColumn::make('status')
-                ->label('Estado')
-                ->options([
-                    'Pendiente' => 'Pendiente',
-                    'En Reparación' => 'En Reparación',
-                    'Listo' => 'Listo',
-                    'Entregado' => 'Entregado',
-                ])
-                ->selectablePlaceholder(false),
-            
-            // Otra opción es usar un BadgeColumn para que sea solo lectura pero con colores:
             Tables\Columns\TextColumn::make('status')
                 ->label('Estado')
-                ->badge() // Convierte el campo en una insignia con fondo de color
+                ->weight('bold') // Para que la letra resalte más al ser solo color
                 ->color(fn (string $state): string => match ($state) {
-                    'Pendiente' => 'gray',        // Gris
-                    'En Reparación' => 'info',    // Azul
-                    'Listo' => 'success',         // Verde
-                    'Entregado' => 'warning',      // Naranja/Ámbar
-                    default => 'gray',
+                    'En Reparacion' => 'danger',  // Rojo intenso
+                    'Listo'         => 'warning', // Naranja/Ámbar intenso
+                    'Entregado'     => 'success', // Verde intenso
+                    default         => 'gray',
                 })
-                ->formatStateUsing(fn (string $state): string => strtoupper($state)), // Opcional: Pone el texto en MAYÚSCULAS para que resalte más
-
+                ->formatStateUsing(fn (string $state): string => match ($state) {
+                    'En Reparacion' => 'EN REPARACIÓN',
+                    'Listo'         => 'LISTO PARA ENTREGA',
+                    'Entregado'     => 'ENTREGADO',
+                    default         => $state,
+                }),
+            
             Tables\Columns\TextColumn::make('price')
                 ->label('Precio')
                 ->formatStateUsing(fn ($state) => 'S/ ' . number_format($state, 2, '.', ','))
@@ -144,8 +144,8 @@ class RepairOrderResource extends Resource
             // Filtro rápido para ver solo lo que está "Pendiente"
             Tables\Filters\SelectFilter::make('status')
                 ->options([
-                    'Pendiente' => 'Pendiente',
-                    'En Reparación' => 'En Reparación',
+                    //'Pendiente' => 'Pendiente',
+                    'En Reparacion' => 'En Reparación',
                     'Listo' => 'Listo',
                 ]),
         ])
