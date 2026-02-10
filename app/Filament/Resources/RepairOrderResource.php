@@ -32,7 +32,12 @@ class RepairOrderResource extends Resource
             
             Forms\Components\Select::make('device_id')
                 ->label('Equipo / Cliente')
-                ->relationship('device', 'model')
+                ->relationship(
+                    name: 'device', 
+                    titleAttribute: 'model',
+                    // 1. Esto ordena la carga inicial (preload)
+                    modifyQueryUsing: fn (Builder $query) => $query->latest() 
+                )
                 ->searchable()
                 ->preload()
                 ->required()

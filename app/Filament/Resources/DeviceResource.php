@@ -28,7 +28,12 @@ class DeviceResource extends Resource
         return $form
         ->schema([
             Forms\Components\Select::make('customer_id')
-                ->relationship('customer', 'name') // Vincula con el nombre del cliente
+                ->relationship(
+                name: 'customer', 
+                titleAttribute: 'name',
+                // Esta línea ordena los clientes: el último creado sale primero
+                modifyQueryUsing: fn (Builder $query) => $query->latest() 
+                )
                 ->searchable()
                 ->preload()
                 ->required(),
