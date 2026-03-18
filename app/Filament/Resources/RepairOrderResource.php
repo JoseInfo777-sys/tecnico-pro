@@ -14,6 +14,7 @@ use Filament\Resources\Resource;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Gemini\Laravel\Facades\Gemini; // Importa la fachada de Gemini
 
 class RepairOrderResource extends Resource
 {
@@ -78,6 +79,48 @@ class RepairOrderResource extends Resource
                 ->numeric()
                 ->prefix('S/') // Cambiamos el $ por S/
                 ->placeholder('0.00'),
+
+            // En tu Resource/********************** */
+            // Forms\Components\Section::make('Asistente Técnico IA')
+            //     ->description('Consulta dudas sobre esta reparación con Gemini')
+            //     ->schema([
+            //         Forms\Components\ViewField::make('chat_history')
+            //             ->view('filament.forms.components.chat-box'), // Necesitarías crear esta vista pequeña
+
+            //         Forms\Components\TextInput::make('user_question')
+            //             ->label('Pregúntale a la IA')
+            //             ->suffixAction(
+            //                 Forms\Components\Actions\Action::make('send_to_gemini')
+            //                     ->icon('heroicon-m-paper-airplane')
+                                
+
+            //                     ->action(function (Forms\Get $get, Forms\Set $set) {
+            //                     $pregunta = $get('user_question');
+            //                     if (blank($pregunta)) return;
+
+            //                     $contexto = "El equipo es un " . $get('brand') . " " . $get('model') . ". ";
+            //                     $prompt = $contexto . "Pregunta técnica: " . $pregunta;
+
+            //                     try {
+            //                         // En la v2.0 usamos generativeModel y pasamos el nombre del modelo directamente
+            //                         $result = \Gemini\Laravel\Facades\Gemini::generativeModel(model: 'gemini-1.5-flash')
+            //                             ->generateContent($prompt);
+                                    
+            //                         $respuestaIA = $result->text();
+            //                     } catch (\Exception $e) {
+            //                         $respuestaIA = "Error: " . $e->getMessage();
+            //                     }
+
+            //                     $set('chat_history', $respuestaIA);
+            //                     $set('user_question', ''); 
+            //                 })
+
+
+            //             ),
+            //     ])
+            //     ->collapsible() // Para que no estorbe si no lo usas
+            /********************************************** */
+
         ]);
     }
 
@@ -87,7 +130,7 @@ class RepairOrderResource extends Resource
         ->recordClasses(fn (RepairOrder $record) => match ($record->status) {
             'En Reparacion' => 'bg-red-100/80 dark:bg-red-900/40',
             'Listo'          => 'bg-orange-100/80 dark:bg-orange-900/40',
-            'Entregado'      => 'bg-green-100/80 dark:bg-green-900/40',
+            'Entregadoo'      => 'bg-green-100/80 dark:bg-green-900/40',
             default          => null,
         })
 
@@ -108,8 +151,17 @@ class RepairOrderResource extends Resource
                 
             // Muestra el modelo del equipo
             Tables\Columns\TextColumn::make('device.model')
+                ->label('Equipo / Cliente')
                 ->description(fn (RepairOrder $record): string => $record->device->customer->name)
-                ->label('Equipo / Cliente'),
+                ->searchable(query: function (Builder $query, string $search): Builder {
+                    return $query->whereHas('device', function (Builder $q) use ($search) {
+                        $q->where('model', 'like', "%{$search}%")
+                        ->orWhere('brand', 'like', "%{$search}%") // También busca por marca
+                        ->orWhereHas('customer', function ($query) use ($search) {
+                            $query->where('name', 'like', "%{$search}%"); // Busca por el Nombre del Cliente
+                        });
+                    });
+                }),
 
             // Muestra la falla (limitada a 30 caracteres para que no ocupe mucho espacio)
             Tables\Columns\TextColumn::make('issue')

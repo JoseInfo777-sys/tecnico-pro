@@ -41,6 +41,19 @@ class DeviceResource extends Resource
             Forms\Components\TextInput::make('brand')->label('Marca')->required(),
             Forms\Components\TextInput::make('model')->label('Modelo')->required(),
             Forms\Components\TextInput::make('serial_number')->label('N° de Serie'),
+            // NUEVO CAMPO: Técnico Responsable
+            Forms\Components\Select::make('technician')
+                ->label('Técnico')
+                ->options([
+                    'JOSE' => 'JOSE',
+                    'LEOPOLDO' => 'LEOPOLDO',
+                    'ANGEL' => 'ANGEL',
+                    'CLINTHON' => 'CLINTHON',
+                ])
+                ->native(false) // Lo hace ver más moderno
+                ->placeholder('Selecciona un técnico')
+                ->searchable()
+                ->default("JOSE"),
         ]);
     }
 
@@ -88,10 +101,12 @@ class DeviceResource extends Resource
                 ->label('Modelo')
                 ->searchable(),
 
-            Tables\Columns\TextColumn::make('serial_number')
-                ->label('S/N')
-                ->copyable()
-                ->placeholder('Sin serie'),
+           Tables\Columns\TextColumn::make('technician')
+                ->label('Técnico')
+                ->badge()
+                ->color('info')
+                ->searchable() // Para que también puedas buscar por nombre de técnico
+                ->placeholder('No asignado'),
 
             // Fecha en que se registró el equipo
             Tables\Columns\TextColumn::make('created_at')

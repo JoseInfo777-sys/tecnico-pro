@@ -15,7 +15,7 @@ use Filament\Tables\Table;
 class Device extends Model
 {
     // Esto permite que Filament guarde los datos
-    protected $fillable = ['customer_id', 'type', 'brand', 'model', 'serial_number'];
+    protected $fillable = ['customer_id', 'type', 'brand', 'model', 'serial_number','technician',];
 
     // Esta es la relación que te está pidiendo el Select
     public function customer(): BelongsTo

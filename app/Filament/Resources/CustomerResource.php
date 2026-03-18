@@ -42,7 +42,8 @@ class CustomerResource extends Resource
                     // FORMULARIO: Quita el +51 al cargar el dato para que el usuario no lo vea en el cuadro
                     ->formatStateUsing(fn ($state) => str_replace('+51', '', $state)),
                 Forms\Components\TextInput::make('email')
-                    ->email(),
+                    ->email()
+                    ->default("ejemplo@gmail.com")
             ])
         ]);
     }
